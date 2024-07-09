@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 
 let seventh: HTMLElement | null = null;
 let sixth: HTMLElement | null = null;
@@ -25,25 +25,108 @@ onMounted(() => {
 
 const currentFloor = ref<number>(0);
 const direction = ref<string>("");
-const topValue = ref<number>(0);
-const bottomValue = ref<number>(0);
+let upInterval: number;
+let downInterval: number;
+
+watch(currentFloor, () => {
+  if (currentFloor.value === 7) {
+    clearInterval(upInterval);
+  }
+});
+
+watch(currentFloor, () => {
+  if (currentFloor.value === -1) {
+    clearInterval(downInterval);
+  }
+});
+
 
 const upHandler = (): void => {
   direction.value = "up";
-  setInterval(() => {
-    // first?.classList.remove('hidden');
-    topValue.value -= 5;
-    bottomValue.value += 5;
-    console.log(topValue.value, bottomValue.value);
-  }, 200)
+  clearInterval(downInterval);
+
+  upInterval = setInterval(() => {
+    console.log('uptick');
+    if (direction.value === "up") {
+      if (currentFloor.value < 7) {
+        currentFloor.value++;
+        console.log(currentFloor.value);
+        if (currentFloor.value === 0) {
+          ground?.classList.remove('hidden');
+          basement?.classList.add('hidden');
+        } else if (currentFloor.value === 1) {
+          first?.classList.remove('hidden');
+          ground?.classList.add('hidden');
+        } else if (currentFloor.value === 2) {
+          second?.classList.remove('hidden');
+          first?.classList.add('hidden');
+        } else if (currentFloor.value === 3) {
+          third?.classList.remove('hidden');
+          second?.classList.add('hidden');
+        } else if (currentFloor.value === 4) {
+          fourth?.classList.remove('hidden');
+          third?.classList.add('hidden');
+        } else if (currentFloor.value === 5) {
+          fifth?.classList.remove('hidden');
+          fourth?.classList.add('hidden');
+        } else if (currentFloor.value === 6) {
+          sixth?.classList.remove('hidden');
+          fifth?.classList.add('hidden');
+        } else if (currentFloor.value === 7) {
+          seventh?.classList.remove('hidden');
+          sixth?.classList.add('hidden');
+        }
+      }
+    }
+  }, 500);
 };
+
+const downHandler = (): void => {
+  direction.value = "down";
+  clearInterval(upInterval);
+  downInterval = setInterval(() => {
+    console.log('downtick');
+    if (direction.value === "down") {
+      if (currentFloor.value > -1) {
+        currentFloor.value--;
+        console.log(currentFloor.value);
+        if (currentFloor.value === -1) {
+          ground?.classList.add('hidden');
+          basement?.classList.remove('hidden');
+        } else if (currentFloor.value === 0) {
+          ground?.classList.remove('hidden');
+          first?.classList.add('hidden');
+        } else if (currentFloor.value === 1) {
+          first?.classList.remove('hidden');
+          second?.classList.add('hidden');
+        } else if (currentFloor.value === 2) {
+          second?.classList.remove('hidden');
+          third?.classList.add('hidden');
+        } else if (currentFloor.value === 3) {
+          third?.classList.remove('hidden');
+          fourth?.classList.add('hidden');
+        } else if (currentFloor.value === 4) {
+          fourth?.classList.remove('hidden');
+          fifth?.classList.add('hidden');
+        } else if (currentFloor.value === 5) {
+          fifth?.classList.remove('hidden');
+          sixth?.classList.add('hidden');
+        } else if (currentFloor.value === 6) {
+          sixth?.classList.remove('hidden');
+          seventh?.classList.add('hidden');
+        }
+      }
+    }
+  }, 500);
+};
+
+
 </script>
 
 <template>
   <div class="container">
-    {{ topValue }}
     <button class="bg-purple-800 m-2 px-4 py-2 rounded font-bold text-white" @click="upHandler">UP</button>
-    <button class="bg-purple-800 px-4 py-2 rounded font-bold text-white">DOWN</button>
+    <button class="bg-purple-800 px-4 py-2 rounded font-bold text-white" @click="downHandler">DOWN</button>
     <div class="grid grid-rows-9">
       <div class="relative z-10 border-4 border-gray-950 border-b-0 w-32 h-32">
         <div class="absolute inset-0 hidden bg-purple-800 seventh" />
@@ -67,8 +150,7 @@ const upHandler = (): void => {
         <div class="absolute inset-0 hidden bg-purple-800 first" />
       </div>
       <div class="relative z-100 border-4 border-gray-950 border-b-0 w-32 h-32">
-        <div class="absolute inset-0 bg-purple-800 ground"
-          :style="{ 'top': topValue + '%', 'bottom': bottomValue + '%' }" />
+        <div class="absolute inset-0 bg-purple-800 ground" />
       </div>
       <div class="relative z-10 border-4 border-gray-950 w-32 h-32">
         <div class="absolute inset-0 hidden bg-purple-800 basement" />
