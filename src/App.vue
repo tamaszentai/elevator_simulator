@@ -1,162 +1,194 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 
-let seventh: HTMLElement | null = null;
-let sixth: HTMLElement | null = null;
-let fifth: HTMLElement | null = null;
-let fourth: HTMLElement | null = null;
-let third: HTMLElement | null = null;
-let second: HTMLElement | null = null;
-let first: HTMLElement | null = null;
-let ground: HTMLElement | null = null;
-let basement: HTMLElement | null = null;
+interface elevatorOrder {
+  id: string;
+  direction: string;
+  destinationFloor: number;
+}
+
+const floors = [
+  { name: 'basement', value: -1 },
+  { name: 'ground', value: 0 },
+  { name: 'first', value: 1 },
+  { name: 'second', value: 2 },
+  { name: 'third', value: 3 },
+  { name: 'fourth', value: 4 },
+  { name: 'fifth', value: 5 },
+  { name: 'sixth', value: 6 },
+  { name: 'seventh', value: 7 },
+];
+
+let floorElements: { [key: string]: HTMLElement | null } = {};
 
 onMounted(() => {
-  seventh = document.querySelector('.seventh');
-  sixth = document.querySelector('.sixth');
-  fifth = document.querySelector('.fifth');
-  fourth = document.querySelector('.fourth');
-  third = document.querySelector('.third');
-  second = document.querySelector('.second');
-  first = document.querySelector('.first');
-  ground = document.querySelector('.ground');
-  basement = document.querySelector('.basement');
+  floors.forEach(floor => {
+    floorElements[floor.name] = document.querySelector(`.${floor.name}`);
+  });
 });
 
+const lowestFloor: number = -1;
+const highestFloor: number = 7;
 const currentFloor = ref<number>(0);
+const destinationFloor = ref<number>(0);
 const direction = ref<string>("");
-let upInterval: number;
-let downInterval: number;
+const elevatorOrders = ref<elevatorOrder[]>([]);
+let interval: number;
 
-watch(currentFloor, () => {
-  if (currentFloor.value === 7) {
-    clearInterval(upInterval);
+watch(currentFloor, (newValue) => {
+  if (newValue === highestFloor || newValue === lowestFloor) {
+    clearInterval(interval);
   }
 });
 
-watch(currentFloor, () => {
-  if (currentFloor.value === -1) {
-    clearInterval(downInterval);
+watch(currentFloor, (_) => {
+  if (destinationFloor.value === currentFloor.value) {
+    clearInterval(interval);
   }
 });
 
+const changeFloorVisibility = (current: number, next: number) => {
+  const currentFloorName = floors.find(floor => floor.value === current)?.name;
+  const nextFloorName = floors.find(floor => floor.value === next)?.name;
+  if (currentFloorName) floorElements[currentFloorName]?.classList.add('hidden');
+  if (nextFloorName) floorElements[nextFloorName]?.classList.remove('hidden');
+};
+
+const moveElevator = (step: number) => {
+  interval = setInterval(() => {
+    const newFloor = currentFloor.value + step;
+    if (newFloor >= lowestFloor && newFloor <= highestFloor) {
+      changeFloorVisibility(currentFloor.value, newFloor);
+      currentFloor.value = newFloor;
+      console.log(currentFloor.value);
+    }
+  }, 500);
+};
 
 const upHandler = (): void => {
   direction.value = "up";
-  clearInterval(downInterval);
-
-  upInterval = setInterval(() => {
-    console.log('uptick');
-    if (direction.value === "up") {
-      if (currentFloor.value < 7) {
-        currentFloor.value++;
-        console.log(currentFloor.value);
-        if (currentFloor.value === 0) {
-          ground?.classList.remove('hidden');
-          basement?.classList.add('hidden');
-        } else if (currentFloor.value === 1) {
-          first?.classList.remove('hidden');
-          ground?.classList.add('hidden');
-        } else if (currentFloor.value === 2) {
-          second?.classList.remove('hidden');
-          first?.classList.add('hidden');
-        } else if (currentFloor.value === 3) {
-          third?.classList.remove('hidden');
-          second?.classList.add('hidden');
-        } else if (currentFloor.value === 4) {
-          fourth?.classList.remove('hidden');
-          third?.classList.add('hidden');
-        } else if (currentFloor.value === 5) {
-          fifth?.classList.remove('hidden');
-          fourth?.classList.add('hidden');
-        } else if (currentFloor.value === 6) {
-          sixth?.classList.remove('hidden');
-          fifth?.classList.add('hidden');
-        } else if (currentFloor.value === 7) {
-          seventh?.classList.remove('hidden');
-          sixth?.classList.add('hidden');
-        }
-      }
-    }
-  }, 500);
+  clearInterval(interval);
+  moveElevator(1);
 };
 
 const downHandler = (): void => {
   direction.value = "down";
-  clearInterval(upInterval);
-  downInterval = setInterval(() => {
-    console.log('downtick');
-    if (direction.value === "down") {
-      if (currentFloor.value > -1) {
-        currentFloor.value--;
-        console.log(currentFloor.value);
-        if (currentFloor.value === -1) {
-          ground?.classList.add('hidden');
-          basement?.classList.remove('hidden');
-        } else if (currentFloor.value === 0) {
-          ground?.classList.remove('hidden');
-          first?.classList.add('hidden');
-        } else if (currentFloor.value === 1) {
-          first?.classList.remove('hidden');
-          second?.classList.add('hidden');
-        } else if (currentFloor.value === 2) {
-          second?.classList.remove('hidden');
-          third?.classList.add('hidden');
-        } else if (currentFloor.value === 3) {
-          third?.classList.remove('hidden');
-          fourth?.classList.add('hidden');
-        } else if (currentFloor.value === 4) {
-          fourth?.classList.remove('hidden');
-          fifth?.classList.add('hidden');
-        } else if (currentFloor.value === 5) {
-          fifth?.classList.remove('hidden');
-          sixth?.classList.add('hidden');
-        } else if (currentFloor.value === 6) {
-          sixth?.classList.remove('hidden');
-          seventh?.classList.add('hidden');
-        }
-      }
-    }
-  }, 500);
+  clearInterval(interval);
+  moveElevator(-1);
 };
 
+const callHandler = (floor: number): void => {
+  const elevatorOrder: elevatorOrder = {
+    id: Date.now().toString(),
+    direction: currentFloor.value < floor ? "up" : "down",
+    destinationFloor: floor
+  };
+  elevatorOrders.value.push(elevatorOrder);
+  executor();
+};
+
+const executor = async () => {
+  while (elevatorOrders.value.length > 0) {
+    const currentOrder = elevatorOrders.value[0];
+    destinationFloor.value = currentOrder.destinationFloor;
+
+    if (currentFloor.value < destinationFloor.value) {
+      upHandler();
+    } else if (currentFloor.value > destinationFloor.value) {
+      downHandler();
+    }
+
+    await new Promise<void>((resolve) => {
+      const unwatch = watch(currentFloor, (newValue) => {
+        if (newValue === destinationFloor.value) {
+          clearInterval(interval);
+          unwatch();
+          resolve();
+        }
+      });
+    });
+
+    elevatorOrders.value = elevatorOrders.value.filter(order => order.id !== currentOrder.id);
+  }
+};
 
 </script>
 
+
 <template>
   <div class="container">
-    <button class="bg-purple-800 m-2 px-4 py-2 rounded font-bold text-white" @click="upHandler">UP</button>
-    <button class="bg-purple-800 px-4 py-2 rounded font-bold text-white" @click="downHandler">DOWN</button>
-    <div class="grid grid-rows-9">
-      <div class="relative z-10 border-4 border-gray-950 border-b-0 w-32 h-32">
-        <div class="absolute inset-0 hidden bg-purple-800 seventh" />
+    {{ elevatorOrders }}
+    <div class="flex">
+      <div
+        class="relative z-100 flex justify-center items-center border-4 border-gray-950 border-b-0 w-32 h-32 text-6xl">7
+        <div class="absolute inset-0 flex justify-center items-center hidden bg-purple-800 text-6xl text-white seventh">
+          7</div>
       </div>
-      <div class="relative z-10 border-4 border-gray-950 border-b-0 w-32 h-32">
-        <div class="absolute inset-0 hidden bg-purple-800 sixth" />
+      <button class="bg-gray-400 my-auto p-2 border h-12" @click="callHandler(7)">Call</button>
+    </div>
+    <div class="flex">
+      <div class="relative z-9 flex justify-center items-center border-4 border-gray-950 border-b-0 w-32 h-32 text-6xl">
+        6
+        <div class="absolute inset-0 flex justify-center items-center hidden bg-purple-800 text-6xl text-white sixth">
+          6</div>
       </div>
-      <div class="relative z-10 border-4 border-gray-950 border-b-0 w-32 h-32">
-        <div class="absolute inset-0 hidden bg-purple-800 fifth" />
+      <button class="bg-gray-400 my-auto p-2 border h-12" @click="callHandler(6)">Call</button>
+    </div>
+    <div class="flex">
+      <div class="relative z-8 flex justify-center items-center border-4 border-gray-950 border-b-0 w-32 h-32 text-6xl">
+        5
+        <div class="absolute inset-0 flex justify-center items-center hidden bg-purple-800 text-6xl text-white fifth">
+          5</div>
       </div>
-      <div class="relative z-10 border-4 border-gray-950 border-b-0 w-32 h-32">
-        <div class="absolute inset-0 hidden bg-purple-800 fourth" />
+      <button class="bg-gray-400 my-auto p-2 border h-12" @click="callHandler(5)">Call</button>
+    </div>
+    <div class="flex">
+      <div class="relative z-7 flex justify-center items-center border-4 border-gray-950 border-b-0 w-32 h-32 text-6xl">
+        4
+        <div class="absolute inset-0 flex justify-center items-center hidden bg-purple-800 text-6xl text-white fourth">
+          4</div>
       </div>
-      <div class="relative z-10 border-4 border-gray-950 border-b-0 w-32 h-32">
-        <div class="absolute inset-0 hidden bg-purple-800 third" />
+      <button class="bg-gray-400 my-auto p-2 border h-12" @click="callHandler(4)">Call</button>
+    </div>
+    <div class="flex">
+      <div class="relative z-6 flex justify-center items-center border-4 border-gray-950 border-b-0 w-32 h-32 text-6xl">
+        3
+        <div class="absolute inset-0 flex justify-center items-center hidden bg-purple-800 text-6xl text-white third">
+          3</div>
       </div>
-      <div class="relative z-10 border-4 border-gray-950 border-b-0 w-32 h-32">
-        <div class="absolute inset-0 hidden bg-purple-800 second" />
+      <button class="bg-gray-400 my-auto p-2 border h-12" @click="callHandler(3)">Call</button>
+    </div>
+    <div class="flex">
+      <div class="relative z-5 flex justify-center items-center border-4 border-gray-950 border-b-0 w-32 h-32 text-6xl">
+        2
+        <div class="absolute inset-0 flex justify-center items-center hidden bg-purple-800 text-6xl text-white second">
+          2</div>
       </div>
-      <div class="relative z-10 border-4 border-gray-950 border-b-0 w-32 h-32">
-        <div class="absolute inset-0 hidden bg-purple-800 first" />
+      <button class="bg-gray-400 my-auto p-2 border h-12" @click="callHandler(2)">Call</button>
+    </div>
+    <div class="flex">
+      <div class="relative z-4 flex justify-center items-center border-4 border-gray-950 border-b-0 w-32 h-32 text-6xl">
+        1
+        <div class="absolute inset-0 flex justify-center items-center hidden bg-purple-800 text-6xl text-white first">
+          1</div>
       </div>
-      <div class="relative z-100 border-4 border-gray-950 border-b-0 w-32 h-32">
-        <div class="absolute inset-0 bg-purple-800 ground" />
+      <button class="bg-gray-400 my-auto p-2 border h-12" @click="callHandler(1)">Call</button>
+    </div>
+    <div class="flex">
+      <div class="relative z-3 flex justify-center items-center border-4 border-gray-950 border-b-0 w-32 h-32 text-6xl">
+        0
+        <div class="absolute inset-0 flex justify-center items-center bg-purple-800 text-6xl text-white ground">0</div>
       </div>
-      <div class="relative z-10 border-4 border-gray-950 w-32 h-32">
-        <div class="absolute inset-0 hidden bg-purple-800 basement" />
+      <button class="bg-gray-400 my-auto p-2 border h-12" @click="callHandler(0)">Call</button>
+    </div>
+    <div class="flex">
+      <div class="relative z-2 flex justify-center items-center border-4 border-gray-950 w-32 h-32 text-6xl">-1
+        <div
+          class="absolute inset-0 flex justify-center items-center hidden bg-purple-800 text-6xl text-white basement">
+          -1
+        </div>
       </div>
+      <button class="bg-gray-400 my-auto p-2 border h-12" @click="callHandler(-1)">Call</button>
     </div>
   </div>
 </template>
-
-<style scoped></style>
