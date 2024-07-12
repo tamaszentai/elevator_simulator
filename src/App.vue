@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue'
 import { floors } from '@/utilities/constants'
-import ElevatorButtons from './components/ElevatorButtons.vue';
+import Floor from './components/Floor.vue';
 
 let floorElements: { [key: string]: HTMLElement | null } = {}
 
@@ -62,6 +62,7 @@ const downHandler = (): void => {
 }
 
 const callHandler = (floor: number): void => {
+  console.log('callHandler', floor)
   const elevatorOrder: elevatorOrder = {
     id: Date.now().toString(),
     direction: currentFloor.value < floor ? 'up' : 'down',
@@ -80,6 +81,8 @@ const executor = async (): Promise<void> => {
       upHandler()
     } else if (currentFloor.value > destinationFloor.value) {
       downHandler()
+    } else if (currentFloor.value === destinationFloor.value) {
+      elevatorOrders.value.shift();
     }
 
     await new Promise<void>((resolve) => {
@@ -87,9 +90,7 @@ const executor = async (): Promise<void> => {
         if (newValue === destinationFloor.value) {
           clearInterval(interval)
           unwatch()
-          setTimeout(() => {
-            resolve()
-          }, 1000)
+          resolve()
         }
       })
     })
@@ -102,97 +103,7 @@ const executor = async (): Promise<void> => {
 <template>
   <div class="container">
     {{ elevatorOrders }}
-    <div class="flex">
-      <div
-        class="relative z-100 flex justify-center items-center border-4 border-gray-950 border-b-0 w-32 h-32 text-6xl">
-        7
-        <div class="absolute inset-0 flex justify-center items-center hidden bg-purple-800 text-6xl text-white seventh">
-          7
-        </div>
-      </div>
-      <button class="bg-gray-400 my-auto p-2 border h-12" @click="callHandler(7)">Call</button>
-      <ElevatorButtons v-if="currentFloor === destinationFloor && currentFloor === 7" />
-    </div>
-    <div class="flex">
-      <div class="relative z-9 flex justify-center items-center border-4 border-gray-950 border-b-0 w-32 h-32 text-6xl">
-        6
-        <div class="absolute inset-0 flex justify-center items-center hidden bg-purple-800 text-6xl text-white sixth">
-          6
-        </div>
-      </div>
-      <button class="bg-gray-400 my-auto p-2 border h-12" @click="callHandler(6)">Call</button>
-      <ElevatorButtons v-if="currentFloor === destinationFloor && currentFloor === 6" />
-    </div>
-    <div class="flex">
-      <div class="relative z-8 flex justify-center items-center border-4 border-gray-950 border-b-0 w-32 h-32 text-6xl">
-        5
-        <div class="absolute inset-0 flex justify-center items-center hidden bg-purple-800 text-6xl text-white fifth">
-          5
-        </div>
-      </div>
-      <button class="bg-gray-400 my-auto p-2 border h-12" @click="callHandler(5)">Call</button>
-      <ElevatorButtons v-if="currentFloor === destinationFloor && currentFloor === 5" />
-    </div>
-    <div class="flex">
-      <div class="relative z-7 flex justify-center items-center border-4 border-gray-950 border-b-0 w-32 h-32 text-6xl">
-        4
-        <div class="absolute inset-0 flex justify-center items-center hidden bg-purple-800 text-6xl text-white fourth">
-          4
-        </div>
-      </div>
-      <button class="bg-gray-400 my-auto p-2 border h-12" @click="callHandler(4)">Call</button>
-      <ElevatorButtons v-if="currentFloor === destinationFloor && currentFloor === 4" />
-    </div>
-    <div class="flex">
-      <div class="relative z-6 flex justify-center items-center border-4 border-gray-950 border-b-0 w-32 h-32 text-6xl">
-        3
-        <div class="absolute inset-0 flex justify-center items-center hidden bg-purple-800 text-6xl text-white third">
-          3
-        </div>
-      </div>
-      <button class="bg-gray-400 my-auto p-2 border h-12" @click="callHandler(3)">Call</button>
-      <ElevatorButtons v-if="currentFloor === destinationFloor && currentFloor === 3" />
-    </div>
-    <div class="flex">
-      <div class="relative z-5 flex justify-center items-center border-4 border-gray-950 border-b-0 w-32 h-32 text-6xl">
-        2
-        <div class="absolute inset-0 flex justify-center items-center hidden bg-purple-800 text-6xl text-white second">
-          2
-        </div>
-      </div>
-      <button class="bg-gray-400 my-auto p-2 border h-12" @click="callHandler(2)">Call</button>
-      <ElevatorButtons v-if="currentFloor === destinationFloor && currentFloor === 2" />
-    </div>
-    <div class="flex">
-      <div class="relative z-4 flex justify-center items-center border-4 border-gray-950 border-b-0 w-32 h-32 text-6xl">
-        1
-        <div class="absolute inset-0 flex justify-center items-center hidden bg-purple-800 text-6xl text-white first">
-          1
-        </div>
-      </div>
-      <button class="bg-gray-400 my-auto p-2 border h-12" @click="callHandler(1)">Call</button>
-      <ElevatorButtons v-if="currentFloor === destinationFloor && currentFloor === 1" />
-    </div>
-    <div class="flex">
-      <div class="relative z-3 flex justify-center items-center border-4 border-gray-950 border-b-0 w-32 h-32 text-6xl">
-        0
-        <div class="absolute inset-0 flex justify-center items-center bg-purple-800 text-6xl text-white ground">
-          0
-        </div>
-      </div>
-      <button class="bg-gray-400 my-auto p-2 border h-12" @click="callHandler(0)">Call</button>
-      <ElevatorButtons v-if="currentFloor === destinationFloor && currentFloor === 0" />
-    </div>
-    <div class="flex">
-      <div class="relative z-2 flex justify-center items-center border-4 border-gray-950 w-32 h-32 text-6xl">
-        -1
-        <div
-          class="absolute inset-0 flex justify-center items-center hidden bg-purple-800 text-6xl text-white basement">
-          -1
-        </div>
-      </div>
-      <button class="bg-gray-400 my-auto p-2 border h-12" @click="callHandler(-1)">Call</button>
-      <ElevatorButtons v-if="currentFloor === destinationFloor && currentFloor === -1" />
-    </div>
+    <Floor v-for="floor in floors" :key="floor.value" :floor="floor" @callHandler="callHandler"
+      :currentFloor="currentFloor" :destinationFloor="destinationFloor" />
   </div>
 </template>
