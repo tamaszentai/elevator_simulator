@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { floors } from '@/utilities/constants'
 import Floor from './components/Floor.vue';
 
@@ -9,6 +9,16 @@ onMounted(() => {
   floors.forEach((floor) => {
     floorElements[floor.name] = document.querySelector(`.${floor.name}`)
   })
+  elevatorOrders.value = [
+    { id: "000000001", "direction": "up", "destinationFloor": 5 },
+    { id: "000000002", "direction": "up", "destinationFloor": 7 },
+    { id: "000000003", "direction": "down", "destinationFloor": -1 },
+    { id: "000000004", "direction": "up", "destinationFloor": 2 },
+    { id: "000000005", "direction": "down", "destinationFloor": -1 },
+    { id: "000000006", "direction": "up", "destinationFloor": 7 }
+  ];
+  executor()
+
 })
 
 const lowestFloor: number = -1
@@ -44,7 +54,6 @@ const moveElevator = (step: number) => {
     if (newFloor >= lowestFloor && newFloor <= highestFloor) {
       changeFloorVisibility(currentFloor.value, newFloor)
       currentFloor.value = newFloor
-      console.log(currentFloor.value)
     }
   }, 500)
 }
@@ -62,7 +71,6 @@ const downHandler = (): void => {
 }
 
 const callHandler = (floor: number): void => {
-  console.log('callHandler', floor)
   const elevatorOrder: elevatorOrder = {
     id: Date.now().toString(),
     direction: currentFloor.value < floor ? 'up' : 'down',
@@ -90,7 +98,9 @@ const executor = async (): Promise<void> => {
         if (newValue === destinationFloor.value) {
           clearInterval(interval)
           unwatch()
-          resolve()
+          setTimeout(() => {
+            resolve()
+          }, 1000)
         }
       })
     })
