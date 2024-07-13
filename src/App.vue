@@ -2,6 +2,8 @@
 import { ref, onMounted, watch } from 'vue'
 import { floors } from '@/utilities/constants'
 import Floor from './components/Floor.vue';
+import type { elevatorOrder } from './utilities/interfaces';
+import ElevatorButtons from './components/ElevatorButtons.vue';
 
 let floorElements: { [key: string]: HTMLElement | null } = {}
 
@@ -113,7 +115,12 @@ const executor = async (): Promise<void> => {
 <template>
   <div class="container">
     {{ elevatorOrders }}
-    <Floor v-for="floor in floors" :key="floor.value" :floor="floor" @callHandler="callHandler"
-      :currentFloor="currentFloor" :destinationFloor="destinationFloor" />
+    <div class="flex">
+      <div>
+        <Floor v-for="floor in floors" :key="floor.value" :floor="floor" @callHandler="callHandler"
+          :currentFloor="currentFloor" :destinationFloor="destinationFloor" :elevatorOrders="elevatorOrders" />
+      </div>
+      <ElevatorButtons />
+    </div>
   </div>
 </template>

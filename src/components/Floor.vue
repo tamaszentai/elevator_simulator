@@ -1,20 +1,19 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import ElevatorButtons from './ElevatorButtons.vue';
+import type { elevatorOrder, floorProps } from '@/utilities/interfaces';
 
-const props = defineProps({
-    floor: Object,
-    currentFloor: Number,
-    destinationFloor: Number
-})
+const props = defineProps<floorProps>()
 
 const isHiddenClass = computed(() => {
     return props.currentFloor === props.floor?.value ? '' : 'hidden'
 })
 
-const isShowElevatorButtons = computed(() => {
-    return props.currentFloor === props.destinationFloor && props.currentFloor === props.floor?.value
-})
+
+const isCallButtonBorder = computed(() => {
+    const orderExists = props.elevatorOrders?.some((order: elevatorOrder) => order.destinationFloor === props.floor?.value);
+    return orderExists ? 'bg-green-600 text-white' : '';
+});
 
 </script>
 
@@ -28,7 +27,7 @@ const isShowElevatorButtons = computed(() => {
                 {{ floor?.value }}
             </div>
         </div>
-        <button class="bg-gray-400 my-auto p-2 border h-12" @click="$emit('callHandler', floor?.value)">Call</button>
-        <ElevatorButtons v-if="isShowElevatorButtons" />
+        <button class="bg-gray-400 m-2 my-auto p-2 h-12" @click="$emit('callHandler', floor?.value)"
+            :class="isCallButtonBorder">Call</button>
     </div>
 </template>

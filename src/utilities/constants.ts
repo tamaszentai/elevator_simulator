@@ -10,6 +10,8 @@
 //   { name: 'seventh', value: 7 }
 // ]
 
+import type { floor } from './interfaces'
+
 export const floors: floor[] = [
   { name: 'seventh', value: 7 },
   { name: 'sixth', value: 6 },
