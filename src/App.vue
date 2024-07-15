@@ -11,14 +11,14 @@ onMounted(() => {
   floors.forEach((floor) => {
     floorElements[floor.name] = document.querySelector(`.${floor.name}`)
   })
-  elevatorOrders.value = [
-    { id: "000000001", "direction": "up", "destinationFloor": 5 },
-    { id: "000000002", "direction": "up", "destinationFloor": 7 },
-    { id: "000000003", "direction": "down", "destinationFloor": -1 },
-    { id: "000000004", "direction": "up", "destinationFloor": 2 },
-    { id: "000000005", "direction": "down", "destinationFloor": -1 },
-    { id: "000000006", "direction": "up", "destinationFloor": 7 }
-  ];
+  // elevatorOrders.value = [
+  //   { id: "000000001", "direction": "up", "destinationFloor": 5 },
+  //   { id: "000000002", "direction": "up", "destinationFloor": 7 },
+  //   { id: "000000003", "direction": "down", "destinationFloor": -1 },
+  //   { id: "000000004", "direction": "up", "destinationFloor": 2 },
+  //   { id: "000000005", "direction": "down", "destinationFloor": -1 },
+  //   { id: "000000006", "direction": "up", "destinationFloor": 7 }
+  // ];
   executor()
 
 })
@@ -27,8 +27,9 @@ const lowestFloor: number = -1
 const highestFloor: number = 7
 const currentFloor = ref<number>(0)
 const destinationFloor = ref<number>(0)
-const direction = ref<string>('')
+const currentDirection = ref<string>('')
 const elevatorOrders = ref<elevatorOrder[]>([])
+const width = ref(50);
 let interval: number
 
 watch(currentFloor, (newValue) => {
@@ -61,13 +62,13 @@ const moveElevator = (step: number) => {
 }
 
 const upHandler = (): void => {
-  direction.value = 'up'
+  currentDirection.value = 'up'
   clearInterval(interval)
   moveElevator(1)
 }
 
 const downHandler = (): void => {
-  direction.value = 'down'
+  currentDirection.value = 'down'
   clearInterval(interval)
   moveElevator(-1)
 }
@@ -78,7 +79,12 @@ const callHandler = (floor: number): void => {
     direction: currentFloor.value < floor ? 'up' : 'down',
     destinationFloor: floor
   }
-  elevatorOrders.value.push(elevatorOrder)
+
+  if (elevatorOrder.direction === 'down' && elevatorOrder.destinationFloor < currentFloor.value) {
+    elevatorOrders.value.unshift(elevatorOrder)
+  } else {
+    elevatorOrders.value.push(elevatorOrder)
+  }
   executor()
 }
 
@@ -115,10 +121,12 @@ const executor = async (): Promise<void> => {
 <template>
   <div class="container">
     {{ elevatorOrders }}
+    {{ currentDirection }}
     <div class="flex">
       <div>
         <Floor v-for="floor in floors" :key="floor.value" :floor="floor" @callHandler="callHandler"
-          :currentFloor="currentFloor" :destinationFloor="destinationFloor" :elevatorOrders="elevatorOrders" />
+          :currentFloor="currentFloor" :destinationFloor="destinationFloor" :elevatorOrders="elevatorOrders"
+          :width="width" />
       </div>
       <ElevatorButtons />
     </div>
