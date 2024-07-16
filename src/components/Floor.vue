@@ -8,14 +8,7 @@ const emits = defineEmits(['callHandler'])
 const width = ref(50);
 
 const callHandlerEmit = async () => {
-    console.log('hey')
-    console.log(props.currentFloor, props.floor?.value)
-    if (props.currentFloor !== props.floor?.value) {
-        console.log('heyooooo')
-        closeDoor().then(() => {
-            emits('callHandler', props.floor?.value);
-        });
-    };
+    emits('callHandler', props.floor?.value);
 };
 
 const isHiddenClass = computed(() => {
@@ -31,7 +24,6 @@ const openDoor = () => {
     if (props.currentFloor === props.floor?.value && width.value === 50) {
         const interval = setInterval(() => {
             width.value--;
-            console.log(width.value);
             if (width.value === 10) {
                 clearInterval(interval);
                 console.log('Door is open');
@@ -45,12 +37,9 @@ const closeDoor = () => {
         if (width.value === 10) {
             const interval = setInterval(() => {
                 width.value++;
-                console.log(width.value);
                 if (width.value === 50) {
                     clearInterval(interval);
                     console.log('Door is closed');
-                    resolve();
-                } else {
                     resolve();
                 }
             }, 25);
@@ -63,6 +52,14 @@ watch(() => props.currentFloor, () => {
     if (props.currentFloor === props.floor?.value && props.destinationFloor === props.floor?.value) {
         setTimeout(() => {
             openDoor();
+        }, 1000);
+    }
+});
+
+watch(() => props.destinationFloor, () => {
+    if (props.destinationFloor !== props.currentFloor) {
+        setTimeout(() => {
+            closeDoor();
         }, 1000);
     }
 });
