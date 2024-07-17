@@ -134,7 +134,7 @@ watch(
           :currentFloor="currentFloor" :destinationFloor="destinationFloor" :elevatorOrders="elevatorOrders"
           @changeStatus="changeStatus" />
       </div>
-      <ElevatorButtons />
+      <ElevatorButtons :elevatorOrders="elevatorOrders" :currentFloor="currentFloor" />
     </div>
   </div>
 </template>
