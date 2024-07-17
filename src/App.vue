@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { floors } from '@/utilities/constants'
-import Floor from './components/Floor.vue';
-import type { elevatorOrder } from './utilities/interfaces';
-import ElevatorButtons from './components/ElevatorButtons.vue';
+import Floor from './components/Floor.vue'
+import { Status, type elevatorOrder } from './utilities/interfaces'
+import ElevatorButtons from './components/ElevatorButtons.vue'
 
 let floorElements: { [key: string]: HTMLElement | null } = {}
 
@@ -20,7 +20,6 @@ onMounted(() => {
   //   { id: "000000006", "direction": "up", "destinationFloor": 7 }
   // ];
   executor()
-
 })
 
 const lowestFloor: number = -1
@@ -28,8 +27,10 @@ const highestFloor: number = 7
 const currentFloor = ref<number>(0)
 const destinationFloor = ref<number>(0)
 const currentDirection = ref<string>('')
+const status = ref<string>(Status.IDLE)
 const elevatorOrders = ref<elevatorOrder[]>([])
-const width = ref(50);
+
+const test = ref<boolean>(false)
 let interval: number
 
 watch(currentFloor, (newValue) => {
@@ -80,12 +81,12 @@ const callHandler = (floor: number): void => {
     destinationFloor: floor
   }
 
-  if (elevatorOrder.direction === 'down' && elevatorOrder.destinationFloor < currentFloor.value) {
-    elevatorOrders.value.unshift(elevatorOrder)
-  } else {
-    elevatorOrders.value.push(elevatorOrder)
-  }
+  elevatorOrders.value.push(elevatorOrder)
   executor()
+}
+
+const changeStatus = (statusParam: string): void => {
+  status.value = statusParam
 }
 
 const executor = async (): Promise<void> => {
@@ -93,12 +94,12 @@ const executor = async (): Promise<void> => {
     const currentOrder = elevatorOrders.value[0]
     destinationFloor.value = currentOrder.destinationFloor
 
-    if (currentFloor.value < destinationFloor.value) {
+    if (currentFloor.value < destinationFloor.value && status.value === Status.IDLE) {
       upHandler()
-    } else if (currentFloor.value > destinationFloor.value) {
+    } else if (currentFloor.value > destinationFloor.value && status.value === Status.IDLE) {
       downHandler()
     } else if (currentFloor.value === destinationFloor.value) {
-      elevatorOrders.value.shift();
+      elevatorOrders.value.shift()
     }
 
     await new Promise<void>((resolve) => {
@@ -116,17 +117,22 @@ const executor = async (): Promise<void> => {
     elevatorOrders.value = elevatorOrders.value.filter((order) => order.id !== currentOrder.id)
   }
 }
+
+watch(
+  () => status.value,
+  () => {
+    executor()
+  }
+)
 </script>
 
 <template>
   <div class="container">
-    {{ elevatorOrders }}
-    {{ currentDirection }}
     <div class="flex">
       <div>
         <Floor v-for="floor in floors" :key="floor.value" :floor="floor" @callHandler="callHandler"
           :currentFloor="currentFloor" :destinationFloor="destinationFloor" :elevatorOrders="elevatorOrders"
-          :width="width" />
+          @changeStatus="changeStatus" />
       </div>
       <ElevatorButtons />
     </div>

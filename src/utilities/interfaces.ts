@@ -15,3 +15,12 @@ export interface floorProps {
   destinationFloor: number
   elevatorOrders: elevatorOrder[]
 }
+
+export enum Status {
+  IDLE = 'IDLE',
+  OPENING = 'OPENING',
+  OPENED = 'OPENED',
+  CLOSING = 'CLOSING',
+  CLOSED = 'CLOSED',
+  MOVING = 'MOVING'
+}
