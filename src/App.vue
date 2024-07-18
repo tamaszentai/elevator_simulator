@@ -118,6 +118,13 @@ const executor = async (): Promise<void> => {
   }
 }
 
+const elevatorButtonsInputEmit = (value: elevatorOrder) => {
+  console.log(value)
+  elevatorOrders.value.push(value);
+  executor()
+
+}
+
 watch(
   () => status.value,
   () => {
@@ -134,7 +141,8 @@ watch(
           :currentFloor="currentFloor" :destinationFloor="destinationFloor" :elevatorOrders="elevatorOrders"
           @changeStatus="changeStatus" />
       </div>
-      <ElevatorButtons :elevatorOrders="elevatorOrders" :currentFloor="currentFloor" />
+      <ElevatorButtons :elevatorOrders="elevatorOrders" :currentFloor="currentFloor"
+        :destinationFloor="destinationFloor" @elevatorButtonsInputEmit="elevatorButtonsInputEmit" />
     </div>
   </div>
 </template>

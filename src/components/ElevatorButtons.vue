@@ -1,37 +1,52 @@
 <script setup lang="ts">
 import { floors } from '@/utilities/constants'
 import type { elevatorOrder } from '@/utilities/interfaces';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const props = defineProps({
   floors: Array,
-  currentFloor: Number
+  currentFloor: Number,
+  destinationFloor: Number
 })
 
-const buttonPushed = ref<elevatorOrder[]>([])
+const emits = defineEmits(['elevatorButtonsInputEmit']);
+
+const elevatorButtonsInput = ref<elevatorOrder[]>([])
+
+const elevatorButtonsInputEmit = (value: elevatorOrder) => {
+  emits('elevatorButtonsInputEmit', value)
+}
 
 const isButtonPushed = computed(() => {
   return (floor: number) => {
-    return buttonPushed.value.some(
-      (order: elevatorOrder) => order.destinationFloor === floor
+    return elevatorButtonsInput.value.some(
+      (order: elevatorOrder) => (order.destinationFloor === floor && props.currentFloor !== props.destinationFloor)
     ) ? 'border-green-500' : ''
   }
 })
 
 const pushButton = (floor: number) => {
-  const exists = buttonPushed.value.some(
+  const exists = elevatorButtonsInput.value.some(
     (order: elevatorOrder) => order.destinationFloor === floor
   )
 
-  if (!exists) {
+  if (!exists && props.currentFloor !== floor) {
     const elevatorOrder: elevatorOrder = {
       id: Date.now().toString(),
       direction: props.currentFloor !== undefined && props.currentFloor < floor ? 'up' : 'down',
       destinationFloor: floor
     }
-    buttonPushed.value.push(elevatorOrder)
+    elevatorButtonsInput.value.push(elevatorOrder)
+    elevatorButtonsInputEmit(elevatorOrder);
   }
 }
+
+watch(() => props.currentFloor, () => {
+  elevatorButtonsInput.value = elevatorButtonsInput.value.filter(
+    (order: elevatorOrder) => order.destinationFloor !== props.currentFloor
+  )
+})
+
 
 </script>
 

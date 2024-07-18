@@ -56,7 +56,7 @@ const closeDoor = () => {
                 changeStatusEmit(Status.CLOSED)
                 setTimeout(() => {
                     changeStatusEmit(Status.IDLE)
-                }, 1000)
+                }, 500)
             }
         }, 25)
     }
@@ -90,10 +90,12 @@ watch(
 
 <template>
     <div class="flex">
-        <div class="relative z-100 flex flex-space-between border-4 border-gray-950 border-b-0 w-32 h-32 text-6xl"
-            :class="`${floor?.value === -1 ? 'border-b-4' : ''}`">
-            <div class="left" :class="`${floor?.name} ${isHiddenClass}`" :style="{ width: width + '%' }"></div>
-            <div class="right" :class="`${floor?.name} ${isHiddenClass}`" :style="{ width: width + '%' }"></div>
+        <div class="relative z-100 flex flex-space-between border-2 border-gray-950 border-b-0 w-32 h-32 text-6xl"
+            :class="`${floor?.value === -1 ? 'border-b-2' : ''}`">
+            <div class="left border-r-2 border-black" :class="`${floor?.name} ${isHiddenClass}`"
+                :style="{ width: width + '%' }"></div>
+            <div class="right border-black border-l-2" :class="`${floor?.name} ${isHiddenClass}`"
+                :style="{ width: width + '%' }"></div>
         </div>
         <button class="bg-gray-400 m-2 my-auto p-2 h-12" @click="callHandlerEmit" :class="isCallButtonGreen"
             :disabled="isDisabled">
