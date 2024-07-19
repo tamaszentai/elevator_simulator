@@ -2,6 +2,7 @@ export interface elevatorOrder {
   id: string
   direction: string
   destinationFloor: number
+  type: ElevatorOrderType
 }
 
 export interface floor {
@@ -23,4 +24,9 @@ export enum Status {
   CLOSING = 'CLOSING',
   CLOSED = 'CLOSED',
   MOVING = 'MOVING'
+}
+
+export enum ElevatorOrderType {
+  INSIDE = 'INSIDE',
+  OUTSIDE = 'OUTSIDE'
 }

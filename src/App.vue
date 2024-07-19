@@ -2,7 +2,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { floors } from '@/utilities/constants'
 import Floor from './components/Floor.vue'
-import { Status, type elevatorOrder } from './utilities/interfaces'
+import { Status, ElevatorOrderType, type elevatorOrder } from './utilities/interfaces'
 import ElevatorButtons from './components/ElevatorButtons.vue'
 
 let floorElements: { [key: string]: HTMLElement | null } = {}
@@ -78,7 +78,8 @@ const callHandler = (floor: number): void => {
   const elevatorOrder: elevatorOrder = {
     id: Date.now().toString(),
     direction: currentFloor.value < floor ? 'up' : 'down',
-    destinationFloor: floor
+    destinationFloor: floor,
+    type: ElevatorOrderType.OUTSIDE
   }
 
   elevatorOrders.value.push(elevatorOrder)

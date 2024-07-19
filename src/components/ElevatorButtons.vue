@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { floors } from '@/utilities/constants'
-import type { elevatorOrder } from '@/utilities/interfaces';
+import { ElevatorOrderType, type elevatorOrder } from '@/utilities/interfaces';
 import { computed, ref, watch } from 'vue';
 
 const props = defineProps({
@@ -34,7 +34,8 @@ const pushButton = (floor: number) => {
     const elevatorOrder: elevatorOrder = {
       id: Date.now().toString(),
       direction: props.currentFloor !== undefined && props.currentFloor < floor ? 'up' : 'down',
-      destinationFloor: floor
+      destinationFloor: floor,
+      type: ElevatorOrderType.INSIDE
     }
     elevatorButtonsInput.value.push(elevatorOrder)
     elevatorButtonsInputEmit(elevatorOrder);

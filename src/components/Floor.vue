@@ -19,9 +19,9 @@ const isHiddenClass = computed(() => {
     return props.currentFloor === props.floor?.value ? '' : 'hidden'
 })
 
-const isCallButtonGreen = computed(() => {
+const isButtonPushed = computed(() => {
     const orderExists = props.elevatorOrders?.some(
-        (order: elevatorOrder) => order.destinationFloor === props.floor?.value
+        (order: elevatorOrder) => order.destinationFloor === props.floor?.value && order.type === 'OUTSIDE'
     )
     return orderExists ? 'bg-green-600 text-white' : ''
 })
@@ -97,7 +97,7 @@ watch(
             <div class="right border-black border-l-2" :class="`${floor?.name} ${isHiddenClass}`"
                 :style="{ width: width + '%' }"></div>
         </div>
-        <button class="bg-gray-400 m-2 my-auto p-2 h-12" @click="callHandlerEmit" :class="isCallButtonGreen"
+        <button class="bg-gray-400 m-2 my-auto p-2 h-12" @click="callHandlerEmit" :class="isButtonPushed"
             :disabled="isDisabled">
             Call
         </button>
