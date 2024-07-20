@@ -11,14 +11,6 @@ onMounted(() => {
   floors.forEach((floor) => {
     floorElements[floor.name] = document.querySelector(`.${floor.name}`)
   })
-  // elevatorOrders.value = [
-  //   { id: "000000001", "direction": "up", "destinationFloor": 5 },
-  //   { id: "000000002", "direction": "up", "destinationFloor": 7 },
-  //   { id: "000000003", "direction": "down", "destinationFloor": -1 },
-  //   { id: "000000004", "direction": "up", "destinationFloor": 2 },
-  //   { id: "000000005", "direction": "down", "destinationFloor": -1 },
-  //   { id: "000000006", "direction": "up", "destinationFloor": 7 }
-  // ];
   executor()
 })
 
@@ -30,7 +22,6 @@ const currentDirection = ref<string>('')
 const status = ref<string>(Status.IDLE)
 const elevatorOrders = ref<elevatorOrder[]>([])
 
-const test = ref<boolean>(false)
 let interval: number
 
 watch(currentFloor, (newValue) => {
@@ -120,7 +111,6 @@ const executor = async (): Promise<void> => {
 }
 
 const elevatorButtonsInputEmit = (value: elevatorOrder) => {
-  console.log(value)
   elevatorOrders.value.push(value);
   executor()
 
@@ -139,8 +129,8 @@ watch(
     <div class="flex">
       <div>
         <Floor v-for="floor in floors" :key="floor.value" :floor="floor" @callHandler="callHandler"
-          :currentFloor="currentFloor" :destinationFloor="destinationFloor" :elevatorOrders="elevatorOrders"
-          @changeStatus="changeStatus" />
+          :highestFloor="highestFloor" :lowestFloor="lowestFloor" :currentFloor="currentFloor"
+          :destinationFloor="destinationFloor" :elevatorOrders="elevatorOrders" @changeStatus="changeStatus" />
       </div>
       <ElevatorButtons :elevatorOrders="elevatorOrders" :currentFloor="currentFloor"
         :destinationFloor="destinationFloor" @elevatorButtonsInputEmit="elevatorButtonsInputEmit" />

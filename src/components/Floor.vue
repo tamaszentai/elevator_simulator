@@ -6,6 +6,7 @@ const props = defineProps<floorProps>()
 const emits = defineEmits(['callHandler', 'changeStatus'])
 
 const width = ref(50)
+const height = ref(100)
 
 const callHandlerEmit = () => {
     emits('callHandler', props.floor?.value)
@@ -90,25 +91,25 @@ watch(
 
 <template>
     <div class="flex">
-        <div class="relative z-100 flex flex-space-between border-2 border-gray-950 border-b-0 w-32 h-32 text-6xl"
-            :class="`${floor?.value === -1 ? 'border-b-2' : ''}`">
+        <div class="relative z-100 flex flex-space-between border-2 border-gray-950 border-t-0 border-b-0 w-32 h-32 text-6xl"
+            :class="`${floor?.value === lowestFloor ? 'border-b-2' : ''} ${floor?.value === highestFloor ? 'border-t-2' : ''}`">
+
             <div class="left border-r-2 border-black" :class="`${floor?.name} ${isHiddenClass}`"
-                :style="{ width: width + '%' }"></div>
+                :style="{ width: width + '%', height: height + '%' }"></div>
             <div class="right border-black border-l-2" :class="`${floor?.name} ${isHiddenClass}`"
-                :style="{ width: width + '%' }"></div>
+                :style="{ width: width + '%', height: height + '%' }"></div>
+
+
         </div>
         <button class="bg-gray-400 m-2 my-auto p-2 h-12" @click="callHandlerEmit" :class="isButtonPushed"
             :disabled="isDisabled">
             Call
         </button>
-        <button @click="openDoor">open</button>
-        <button @click="closeDoor">close</button>
     </div>
 </template>
 
 <style scoped>
 .left {
-    height: 100%;
     position: absolute;
     left: 0;
     top: 0;
@@ -116,7 +117,6 @@ watch(
 }
 
 .right {
-    height: 100%;
     position: absolute;
     right: 0;
     top: 0;

@@ -11,6 +11,8 @@ export interface floor {
 }
 
 export interface floorProps {
+  highestFloor: number
+  lowestFloor: number
   floor: floor
   currentFloor: number
   destinationFloor: number
