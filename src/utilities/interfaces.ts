@@ -17,6 +17,12 @@ export interface floorProps {
   elevatorOrders: elevatorOrder[]
 }
 
+export interface elevatorButtonsProps {
+  currentFloor: number
+  destinationFloor: number
+  elevatorOrders: elevatorOrder[]
+}
+
 export enum Status {
   IDLE = 'IDLE',
   OPENING = 'OPENING',

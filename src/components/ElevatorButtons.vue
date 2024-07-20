@@ -1,13 +1,9 @@
 <script setup lang="ts">
 import { floors } from '@/utilities/constants'
-import { ElevatorOrderType, type elevatorOrder } from '@/utilities/interfaces';
+import { ElevatorOrderType, type elevatorButtonsProps, type elevatorOrder } from '@/utilities/interfaces';
 import { computed, ref, watch } from 'vue';
 
-const props = defineProps({
-  floors: Array,
-  currentFloor: Number,
-  destinationFloor: Number
-})
+const props = defineProps<elevatorButtonsProps>()
 
 const emits = defineEmits(['elevatorButtonsInputEmit']);
 
@@ -19,8 +15,8 @@ const elevatorButtonsInputEmit = (value: elevatorOrder) => {
 
 const isButtonPushed = computed(() => {
   return (floor: number) => {
-    return elevatorButtonsInput.value.some(
-      (order: elevatorOrder) => (order.destinationFloor === floor && props.currentFloor !== props.destinationFloor)
+    return props.elevatorOrders?.some(
+      (order: elevatorOrder) => (order.destinationFloor === floor && order.type === ElevatorOrderType.INSIDE)
     ) ? 'border-green-500' : ''
   }
 })
